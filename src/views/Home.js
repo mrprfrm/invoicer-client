@@ -1,3 +1,7 @@
+import { useSelector } from "react-redux";
+
 export function Home() {
-  return <div>Hello world</div>;
+  const { text } = useSelector((store) => store.home);
+
+  return <div>{text}</div>;
 }
