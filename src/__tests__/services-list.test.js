@@ -2,12 +2,12 @@ import { screen } from "@testing-library/react";
 import { createSlice } from "@reduxjs/toolkit";
 import userEvent from "@testing-library/user-event";
 
-import { renderWithProviders } from "test-utils";
+import { renderWithProviders } from "../utils/test-utils";
 
 import { ServicesList } from "../components/ServicesList";
 
 /*
- * This test suite is testing the ServicesList component.
+ * This test cases are testing the ServicesList component.
  * The ServicesList is a component rendered based on the state of the services slice of the store.
  * Also it can modify the state of the services slice of the store adding new services.
  * All the logic of editing and deleting services is available on the ServiceCard component level.

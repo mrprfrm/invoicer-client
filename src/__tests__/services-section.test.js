@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { createSlice } from "@reduxjs/toolkit";
+import userEvent from "@testing-library/user-event";
 
-import { renderWithProviders } from "../utils/tests";
+import { renderWithProviders } from "../utils/test-utils";
 
 import { ServicesList } from "../components/ServicesList";
 import { DialogsPipeline } from "../components/DialogsPipeline";
