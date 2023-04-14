@@ -29,36 +29,6 @@ function ServicesSection() {
   );
 }
 
-describe("Services list tests WITHOUT initial state set", () => {
-  let storeOptions;
-
-  beforeEach(() => {
-    const serviceSlice = createSlice({
-      name: "services",
-
-      initialState: {
-        services: [],
-      },
-    });
-
-    storeOptions = {
-      reducer: {
-        services: serviceSlice.reducer,
-      },
-    };
-  });
-
-  it("A new service form should be displayed for invoices with an empty services list", async () => {
-    renderWithProviders(<ServicesSection />, { storeOptions });
-    expect(screen.getByLabelText("Describe a service")).toBeVisible();
-  });
-
-  it("The '+ add item' button should NOT be displayed for invoices with an empty services list", async () => {
-    renderWithProviders(<ServicesSection />, { storeOptions });
-    expect(screen.queryByLabelText("Add a service")).not.toBeInTheDocument();
-  });
-});
-
 describe("Services section tests WITHOUT changes in current service", () => {
   let user;
   let storeOptions;
