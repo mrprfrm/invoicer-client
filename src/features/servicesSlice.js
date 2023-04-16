@@ -4,6 +4,7 @@ export const serviceSlice = createSlice({
   name: "services",
 
   initialState: {
+    errors: {},
     services: [],
     currentServiceIndex: null,
     unstagedChanges: null,
@@ -44,6 +45,14 @@ export const serviceSlice = createSlice({
       }
       state.currentServiceIndex = null;
       state.unstagedChanges = null;
+    },
+
+    validateChanges: (state) => {
+      for (let name in state.unstagedChanges) {
+        if (state.unstagedChanges[name] === "") {
+          errors[name] = `The ${name} field is required.`;
+        }
+      }
     },
   },
 });

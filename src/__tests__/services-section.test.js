@@ -93,6 +93,16 @@ describe("Services section tests WITHOUT changes in current service", () => {
     expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
   });
 
+  it("On a '+ Add service' click a new service form should be displayed, and a previous form should be replaced with a card", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const addButton = screen.getByLabelText("Add a service");
+    await user.click(addButton);
+
+    expect(screen.getByLabelText("Describe a service")).toBeVisible();
+    expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
+  });
+
   it("On an 'Edit' click, an edit form should be opened instead of a current card, and a previous form should be replaced with a card", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
@@ -108,7 +118,7 @@ describe("Services section tests WITHOUT changes in current service", () => {
     expect(screen.getAllByLabelText("Service card")).toHaveLength(1);
   });
 
-  it("On a 'Duplicate' click an edit form should be opend instead of a current card and a previous form should be replaced with a card", async () => {
+  it("On a 'Duplicate' click an duplicate form should be opend, and a previous form should be replaced with a card", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
     const card = screen.getAllByLabelText("Service card")[0];
@@ -122,7 +132,7 @@ describe("Services section tests WITHOUT changes in current service", () => {
     await user.click(duplicateButton);
 
     expect(screen.getByLabelText("Describe a service")).toBeVisible();
-    expect(screen.getAllByLabelText("Service card")).toHaveLength(1);
+    expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
   });
 
   it("On a 'Delete' click a current service form should be replaced with a service card and a 'Confirm deletion' dialog should be displayed", async () => {
@@ -190,22 +200,33 @@ describe("Services section tests WITH VALID changes in current service", () => {
     };
   });
 
-  it("On a 'Save' click a 'Confirm save' dialog should be displayed", async () => {
+  it("On a 'Save' click a current service form should be replaced with a service card", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
     const form = screen.getByLabelText("Describe a service");
     const submitButton = form.getByLabelText("Save");
     await user.click(submitButton);
 
-    expect(screen.getByLabelText("Confirm save")).toBeVisible();
+    expect(screen.getByLabelText("Describe a service")).not.toBeVisible();
+    expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
   });
 
-  it("On a 'Cancel' click a 'Confirm save' dialog should be displayed", async () => {
+  it("On a 'Cancel' click a current service form should be replaced with a service card", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
     const form = screen.getByLabelText("Describe a service");
     const cancelButton = form.getByLabelText("Cancel");
     await user.click(cancelButton);
+
+    expect(screen.getByLabelText("Describe a service")).not.toBeVisible();
+    expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
+  });
+
+  it("On a '+ Add service' click a 'Confirm save' dialog should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const addButton = screen.getByLabelText("Add a service");
+    await user.click(addButton);
 
     expect(screen.getByLabelText("Confirm save")).toBeVisible();
   });
@@ -305,22 +326,31 @@ describe("Services section tests WITH INVALID changes in current service", () =>
     };
   });
 
-  it("On a 'Save' click a 'Discard changes' dialog should be displayed", async () => {
+  it("'Save' button should NOT be enabled", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
     const form = screen.getByLabelText("Describe a service");
     const submitButton = form.getByLabelText("Save");
-    await user.click(submitButton);
 
-    expect(screen.getByLabelText("Discard changes")).toBeVisible();
+    expect(submitButton).toBeDisabled();
   });
 
-  it("On a 'Cancel' click a 'Discard changes' dialog should be displayed", async () => {
+  it("On a 'Cancel' click a current service form should be replaced with a service card", async () => {
     renderWithProviders(<ServicesSection />, { storeOptions });
 
     const form = screen.getByLabelText("Describe a service");
     const cancelButton = form.getByLabelText("Cancel");
     await user.click(cancelButton);
+
+    expect(screen.getByLabelText("Describe a service")).not.toBeVisible();
+    expect(screen.getAllByLabelText("Service card")).toHaveLength(2);
+  });
+
+  it("On a '+ Add service' click a 'Discard changes' dialog should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const addButton = screen.getByLabelText("Add a service");
+    await user.click(addButton);
 
     expect(screen.getByLabelText("Discard changes")).toBeVisible();
   });
@@ -367,5 +397,114 @@ describe("Services section tests WITH INVALID changes in current service", () =>
     await user.click(deleteButton);
 
     expect(screen.getByLabelText("Discard changes")).toBeVisible();
+  });
+});
+
+describe("Services section validation tests WITH INVALID changes in current service", () => {
+  let user;
+  let storeOptions;
+
+  beforeAll(() => {
+    user = userEvent.setup();
+  });
+
+  beforeEach(() => {
+    const serviceSlice = createSlice({
+      name: "services",
+
+      initialState: {
+        currentServiceIndex: 1,
+        unstagedChanges: {
+          description: "",
+          quantity: 1,
+          date: "month",
+          price: null,
+          currency: "USD",
+          amount: null,
+        },
+        services: [
+          {
+            description: "Services section design",
+            quantity: 1,
+            date: "month",
+            price: 100,
+            currency: "USD",
+            amount: null,
+          },
+          {
+            description: "Services section development",
+            quantity: 1,
+            date: "month",
+            price: 100,
+            currency: "USD",
+            amount: null,
+          },
+        ],
+      },
+    });
+
+    storeOptions = {
+      reducer: {
+        services: serviceSlice.reducer,
+      },
+    };
+  });
+
+  it("On '+ Add service' click the current form fields errors should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const form = screen.getByLabelText("Describe a service");
+    const addButton = form.getByLabelText("+ Add service");
+    await user.click(addButton);
+
+    expect(screen.getByLabelText("Description is required")).toBeVisible();
+    expect(screen.getByLabelText("Price is required")).toBeVisible();
+  });
+
+  it("On `Edit` click the current form fields errors should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const card = screen.getAllByLabelText("Service card")[0];
+    const actionsButton = card.getByLabelText("Service actions");
+    await user.click(actionsButton);
+
+    const actionsPopover = screen.getByLabelText("Service actions popover");
+    const editButton = actionsPopover.getByLabelText("Edit a service");
+    await user.click(editButton);
+
+    expect(screen.getByLabelText("Description is required")).toBeVisible();
+    expect(screen.getByLabelText("Price is required")).toBeVisible();
+  });
+
+  it("On `Duplicate` click the current form fields errors should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const card = screen.getAllByLabelText("Service card")[0];
+    const actionsButton = card.getByLabelText("Service actions");
+    await user.click(actionsButton);
+
+    const actionsPopover = screen.getByLabelText("Service actions popover");
+    const duplicateButton = actionsPopover.getByLabelText(
+      "Duplicate a service"
+    );
+    await user.click(duplicateButton);
+
+    expect(screen.getByLabelText("Description is required")).toBeVisible();
+    expect(screen.getByLabelText("Price is required")).toBeVisible();
+  });
+
+  it("On `Delete` click the current form fields errors should be displayed", async () => {
+    renderWithProviders(<ServicesSection />, { storeOptions });
+
+    const card = screen.getAllByLabelText("Service card")[0];
+    const actionsButton = card.getByLabelText("Service actions");
+    await user.click(actionsButton);
+
+    const actionsPopover = screen.getByLabelText("Service actions popover");
+    const deleteButton = actionsPopover.getByLabelText("Delete a service");
+    await user.click(deleteButton);
+
+    expect(screen.getByLabelText("Description is required")).toBeVisible();
+    expect(screen.getByLabelText("Price is required")).toBeVisible();
   });
 });
